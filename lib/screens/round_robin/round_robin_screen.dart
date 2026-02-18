@@ -57,6 +57,13 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
       return;
     }
 
+    // ensure PID uniqueness
+    if (_processes.any((p) => p.id == pid)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('the process with same name already in list')));
+      return;
+    }
+
     setState(() {
       _processes.add(Process(id: pid, arrival: at, burst: bt));
       _pidCtrl.clear();
