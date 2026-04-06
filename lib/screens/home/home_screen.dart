@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../auth/auth_screen.dart';
+import '../history/history_screen.dart';
 import '../round_robin/round_robin_screen.dart';
 
 class SettingsDrawer extends StatelessWidget {
@@ -69,7 +70,14 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OS Scheduler Simulator'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/os3.png', height: 28),
+            const SizedBox(width: 8),
+            const Text('OS Scheduler Simulator'),
+          ],
+        ),
         actions: [
           Builder(
             builder: (ctx) => IconButton(
@@ -207,6 +215,20 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const HistoryScreen()),
+                  );
+                },
+                icon: const Icon(Icons.history),
+                label: const Text('View Past Results'),
               ),
             ),
           ],

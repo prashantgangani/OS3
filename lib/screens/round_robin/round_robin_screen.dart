@@ -6,8 +6,11 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/pdf.dart';
 
 import '../../models/process.dart';
+import '../../models/simulation_history_entry.dart';
 import '../../models/gantt_block.dart';
 import '../../logic/round_robin_simulator.dart';
+import '../../utils/history_storage.dart';
+import '../history/history_screen.dart';
 
 class RoundRobinScreen extends StatefulWidget {
   static const routeName = '/round-robin';
@@ -31,11 +34,13 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
   double _avgTAT = 0;
 
   Timer? _timer;
+  final ScrollController _timelineScrollCtrl = ScrollController();
   int _currentBlock = -1;
   bool _isRunning = false;
   bool _isPaused = false;
 
   static const double _blockWidth = 72;
+  static const double _blockHorizontalPadding = 6;
   static const Duration _stepDuration = Duration(milliseconds: 700);
 
   @override
@@ -44,6 +49,7 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
     _atCtrl.dispose();
     _btCtrl.dispose();
     _qtCtrl.dispose();
+    _timelineScrollCtrl.dispose();
     _timer?.cancel();
     super.dispose();
   }
@@ -90,6 +96,7 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
     }
 
     final sim = simulateRoundRobin(_processes, qt);
+    _saveRunToHistory(sim, qt);
     setState(() {
       _timeline = sim.timeline;
       _results = sim.processResults;
@@ -98,7 +105,38 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
       _currentBlock = -1;
     });
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_timelineScrollCtrl.hasClients) {
+        _timelineScrollCtrl.jumpTo(0);
+      }
+    });
+
     _startAnimation();
+  }
+
+  Future<void> _saveRunToHistory(SimulationResult sim, int quantum) async {
+    final entry = SimulationHistoryEntry(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      createdAt: DateTime.now(),
+      quantum: quantum,
+      inputProcesses: _processes
+          .map((p) => Process(id: p.id, arrival: p.arrival, burst: p.burst))
+          .toList(),
+      results: sim.processResults
+          .map(
+            (r) => HistoryProcessResult(
+              pid: r.pid,
+              completion: r.completion,
+              turnaround: r.turnaround,
+              waiting: r.waiting,
+            ),
+          )
+          .toList(),
+      averageWaitingTime: sim.averageWaitingTime,
+      averageTurnaroundTime: sim.averageTurnaroundTime,
+    );
+
+    await HistoryStorage.saveEntry(entry);
   }
 
   void _startAnimation() {
@@ -116,14 +154,31 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
       setState(() {
         _currentBlock++;
       });
+      _scrollTimelineToCurrentBlock();
       if (_currentBlock >= _timeline.length) {
         t.cancel();
         setState(() {
           _isRunning = false;
           _currentBlock = _timeline.length - 1;
         });
+        _scrollTimelineToCurrentBlock();
       }
     });
+  }
+
+  void _scrollTimelineToCurrentBlock() {
+    if (_currentBlock < 0 || !_timelineScrollCtrl.hasClients) return;
+
+    final double blockExtent = _blockWidth + (_blockHorizontalPadding * 2);
+    final double target = (_currentBlock * blockExtent) - 24;
+    final double max = _timelineScrollCtrl.position.maxScrollExtent;
+    final double clamped = target.clamp(0, max).toDouble();
+
+    _timelineScrollCtrl.animateTo(
+      clamped,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOut,
+    );
   }
 
   void _pauseAnimation() {
@@ -153,6 +208,9 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
       _avgTAT = 0;
       _currentBlock = -1;
     });
+    if (_timelineScrollCtrl.hasClients) {
+      _timelineScrollCtrl.jumpTo(0);
+    }
   }
 
   Future<void> _generatePdf() async {
@@ -198,7 +256,27 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Round Robin Simulator')),
+      appBar: AppBar(
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/os3.png', height: 28),
+            const SizedBox(width: 8),
+            const Text('Round Robin Simulator'),
+          ],
+        ),
+        actions: [
+          IconButton(
+            tooltip: 'History',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const HistoryScreen()),
+              );
+            },
+            icon: const Icon(Icons.history),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -282,7 +360,8 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                                     ),
                                   );
                                 },
-                                separatorBuilder: (_, __) => const Divider(height: 6),
+                                separatorBuilder: (context, index) =>
+                                    const Divider(height: 6),
                                 itemCount: _processes.length,
                               ),
                       ),
@@ -343,13 +422,14 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                       child: _timeline.isEmpty
                           ? Center(child: Text('No timeline yet. Run simulation to see CPU timeline.', style: TextStyle(color: Colors.grey[600])))
                           : SingleChildScrollView(
+                              controller: _timelineScrollCtrl,
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 children: List.generate(_timeline.length, (i) {
                                   final block = _timeline[i];
                                   final active = i == _currentBlock;
                                   return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: _blockHorizontalPadding),
                                     child: Column(
                                       children: [
                                         Container(
