@@ -59,14 +59,19 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
     final at = int.tryParse(_atCtrl.text);
     final bt = int.tryParse(_btCtrl.text);
     if (pid == null || at == null || bt == null || bt <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid PID, AT and BT')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter valid PID, AT and BT')),
+      );
       return;
     }
 
     // ensure PID uniqueness
     if (_processes.any((p) => p.id == pid)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('the process with same name already in list')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('the process with same name already in list'),
+        ),
+      );
       return;
     }
 
@@ -87,11 +92,15 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
   void _runSimulation() {
     final qt = int.tryParse(_qtCtrl.text);
     if (qt == null || qt <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter a valid Time Quantum')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid Time Quantum')),
+      );
       return;
     }
     if (_processes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Add at least one process')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Add at least one process')));
       return;
     }
 
@@ -220,32 +229,67 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build: (ctx) => [
-          pw.Header(level: 0, child: pw.Text('OS Scheduler Simulator - Round Robin')),
+          pw.Header(
+            level: 0,
+            child: pw.Text('OS Scheduler Simulator - Round Robin'),
+          ),
           pw.Paragraph(text: 'Time Quantum: ${_qtCtrl.text}'),
 
           pw.Header(level: 1, child: pw.Text('Input Processes')),
           pw.Table.fromTextArray(
             headers: ['PID', 'Arrival', 'Burst'],
-            data: _processes.map((p) => [p.id.toString(), p.arrival.toString(), p.burst.toString()]).toList(),
+            data: _processes
+                .map(
+                  (p) => [
+                    p.id.toString(),
+                    p.arrival.toString(),
+                    p.burst.toString(),
+                  ],
+                )
+                .toList(),
           ),
 
           pw.SizedBox(height: 12),
-          pw.Header(level: 1, child: pw.Text('Gantt Timeline (PID, Start, End)')),
+          pw.Header(
+            level: 1,
+            child: pw.Text('Gantt Timeline (PID, Start, End)'),
+          ),
           pw.Table.fromTextArray(
             headers: ['PID', 'Start', 'End'],
-            data: _timeline.map((b) => [b.processId.toString(), b.start.toString(), b.end.toString()]).toList(),
+            data: _timeline
+                .map(
+                  (b) => [
+                    b.processId.toString(),
+                    b.start.toString(),
+                    b.end.toString(),
+                  ],
+                )
+                .toList(),
           ),
 
           pw.SizedBox(height: 12),
           pw.Header(level: 1, child: pw.Text('Results')),
           pw.Table.fromTextArray(
             headers: ['PID', 'CT', 'TAT', 'WT'],
-            data: _results.map((r) => [r.pid.toString(), r.completion.toString(), r.turnaround.toString(), r.waiting.toString()]).toList(),
+            data: _results
+                .map(
+                  (r) => [
+                    r.pid.toString(),
+                    r.completion.toString(),
+                    r.turnaround.toString(),
+                    r.waiting.toString(),
+                  ],
+                )
+                .toList(),
           ),
 
           pw.SizedBox(height: 12),
-          pw.Paragraph(text: 'Average Waiting Time: ${_avgWT.toStringAsFixed(2)}'),
-          pw.Paragraph(text: 'Average Turnaround Time: ${_avgTAT.toStringAsFixed(2)}'),
+          pw.Paragraph(
+            text: 'Average Waiting Time: ${_avgWT.toStringAsFixed(2)}',
+          ),
+          pw.Paragraph(
+            text: 'Average Turnaround Time: ${_avgTAT.toStringAsFixed(2)}',
+          ),
         ],
       ),
     );
@@ -262,16 +306,16 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
           children: [
             Image.asset('assets/os3.png', height: 28),
             const SizedBox(width: 8),
-            const Text('Round Robin Simulator'),
+            const Text('Round Robin Simulator', style: TextStyle(fontSize: 18)),
           ],
         ),
         actions: [
           IconButton(
             tooltip: 'History',
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const HistoryScreen()),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const HistoryScreen()));
             },
             icon: const Icon(Icons.history),
           ),
@@ -284,13 +328,21 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
           children: [
             Card(
               elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('Input', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Input',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -306,7 +358,9 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                           child: TextField(
                             controller: _atCtrl,
                             keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(labelText: 'Arrival Time (AT)'),
+                            decoration: const InputDecoration(
+                              labelText: 'Arrival Time (AT)',
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -314,7 +368,9 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                           child: TextField(
                             controller: _btCtrl,
                             keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(labelText: 'Burst Time (BT)'),
+                            decoration: const InputDecoration(
+                              labelText: 'Burst Time (BT)',
+                            ),
                           ),
                         ),
                       ],
@@ -326,7 +382,9 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                           child: TextField(
                             controller: _qtCtrl,
                             keyboardType: TextInputType.number,
-                            decoration: const InputDecoration(labelText: 'Time Quantum (QT)'),
+                            decoration: const InputDecoration(
+                              labelText: 'Time Quantum (QT)',
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -339,7 +397,10 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                     ),
 
                     const SizedBox(height: 12),
-                    const Text('Processes', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Processes',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 6),
                     SizedBox(
                       height: 140,
@@ -351,17 +412,52 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                                 padding: const EdgeInsets.all(8),
                                 itemBuilder: (ctx, i) {
                                   final p = _processes[i];
-                                  return ListTile(
-                                    title: Text('PID: ${p.id}'),
-                                    subtitle: Text('AT: ${p.arrival}   BT: ${p.burst}'),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () => _deleteProcess(p.id),
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.05),
+                                          blurRadius: 4,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundColor:
+                                            Colors.primaries[p.id %
+                                                Colors.primaries.length],
+                                        child: Text(
+                                          p.id.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        'Process ${p.id}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        'Arrival: ${p.arrival}  |  Burst: ${p.burst}',
+                                      ),
+                                      trailing: IconButton(
+                                        icon: const Icon(
+                                          Icons.delete_outline,
+                                          color: Colors.redAccent,
+                                        ),
+                                        onPressed: () => _deleteProcess(p.id),
+                                      ),
                                     ),
                                   );
                                 },
                                 separatorBuilder: (context, index) =>
-                                    const Divider(height: 6),
+                                    const SizedBox(height: 8),
                                 itemCount: _processes.length,
                               ),
                       ),
@@ -376,13 +472,21 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
             // Simulation card
             Card(
               elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('Simulation', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Simulation',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -391,7 +495,11 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              ElevatedButton.icon(onPressed: _runSimulation, icon: const Icon(Icons.play_arrow), label: const Text('Start')),
+                              ElevatedButton.icon(
+                                onPressed: _runSimulation,
+                                icon: const Icon(Icons.play_arrow),
+                                label: const Text('Start'),
+                              ),
                               ElevatedButton.icon(
                                 onPressed: _timeline.isNotEmpty
                                     ? () {
@@ -402,49 +510,101 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                                         }
                                       }
                                     : null,
-                                icon: Icon(_isRunning && !_isPaused ? Icons.pause : Icons.play_arrow),
-                                label: Text(_isRunning && !_isPaused ? 'Pause' : 'Resume'),
+                                icon: Icon(
+                                  _isRunning && !_isPaused
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                ),
+                                label: Text(
+                                  _isRunning && !_isPaused ? 'Pause' : 'Resume',
+                                ),
                               ),
-                              OutlinedButton.icon(onPressed: _reset, icon: const Icon(Icons.refresh), label: const Text('Reset')),
+                              OutlinedButton.icon(
+                                onPressed: _reset,
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Reset'),
+                              ),
                             ],
                           ),
                         ),
 
-                        ElevatedButton.icon(onPressed: _generatePdf, icon: const Icon(Icons.picture_as_pdf), label: const Text('Generate PDF')),
+                        ElevatedButton.icon(
+                          onPressed: _generatePdf,
+                          icon: const Icon(Icons.picture_as_pdf),
+                          label: const Text('Generate PDF'),
+                        ),
                       ],
                     ),
 
                     const SizedBox(height: 12),
-                    const Text('CPU Timeline', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'CPU Timeline',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
                     SizedBox(
                       height: 96,
                       child: _timeline.isEmpty
-                          ? Center(child: Text('No timeline yet. Run simulation to see CPU timeline.', style: TextStyle(color: Colors.grey[600])))
+                          ? Center(
+                              child: Text(
+                                'No timeline yet. Run simulation to see CPU timeline.',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            )
                           : SingleChildScrollView(
                               controller: _timelineScrollCtrl,
                               scrollDirection: Axis.horizontal,
                               child: Row(
                                 children: List.generate(_timeline.length, (i) {
                                   final block = _timeline[i];
-                                  final active = i == _currentBlock;
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: _blockHorizontalPadding),
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: _blockWidth,
-                                          height: 42,
-                                          decoration: BoxDecoration(
-                                            color: active ? Theme.of(context).colorScheme.primary : Colors.grey[300],
-                                            borderRadius: BorderRadius.circular(6),
+                                  final isRevealed = i <= _currentBlock;
+                                  return AnimatedOpacity(
+                                    duration: const Duration(milliseconds: 400),
+                                    opacity: isRevealed ? 1.0 : 0.0,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: _blockHorizontalPadding,
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            width: _blockWidth,
+                                            height: 48,
+                                            decoration: BoxDecoration(
+                                              color: Colors
+                                                  .primaries[block.processId %
+                                                      Colors.primaries.length]
+                                                  .withOpacity(0.3),
+                                              border: Border.all(
+                                                color:
+                                                    Colors.primaries[block
+                                                            .processId %
+                                                        Colors
+                                                            .primaries
+                                                            .length],
+                                                width: 2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              'P${block.processId}',
+                                              style: const TextStyle(
+                                                color: Colors.black87,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ),
-                                          alignment: Alignment.center,
-                                          child: Text('P${block.processId}', style: TextStyle(color: active ? Colors.white : Colors.black, fontWeight: FontWeight.bold)),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text('${block.start} - ${block.end}', style: const TextStyle(fontSize: 12)),
-                                      ],
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            '${block.start} - ${block.end}',
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 }),
@@ -461,13 +621,21 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
             // Results
             Card(
               elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('Results', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Results',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     _results.isEmpty
                         ? const Text('No results yet. Run simulation.')
@@ -481,12 +649,16 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                                 DataColumn(label: Text('WT')),
                               ],
                               rows: _results
-                                  .map((r) => DataRow(cells: [
+                                  .map(
+                                    (r) => DataRow(
+                                      cells: [
                                         DataCell(Text(r.pid.toString())),
                                         DataCell(Text(r.completion.toString())),
                                         DataCell(Text(r.turnaround.toString())),
                                         DataCell(Text(r.waiting.toString())),
-                                      ]))
+                                      ],
+                                    ),
+                                  )
                                   .toList(),
                             ),
                           ),
@@ -495,9 +667,13 @@ class _RoundRobinScreenState extends State<RoundRobinScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Average Waiting Time: ${_avgWT.toStringAsFixed(2)}'),
+                          Text(
+                            'Average Waiting Time: ${_avgWT.toStringAsFixed(2)}',
+                          ),
                           const SizedBox(height: 4),
-                          Text('Average Turnaround Time: ${_avgTAT.toStringAsFixed(2)}'),
+                          Text(
+                            'Average Turnaround Time: ${_avgTAT.toStringAsFixed(2)}',
+                          ),
                         ],
                       ),
                   ],

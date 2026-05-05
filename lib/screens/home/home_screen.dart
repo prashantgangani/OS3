@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../auth/auth_screen.dart';
 import '../history/history_screen.dart';
 import '../round_robin/round_robin_screen.dart';
+import '../sjf/sjf_screen.dart';
 
 class SettingsDrawer extends StatelessWidget {
   const SettingsDrawer({super.key});
@@ -15,8 +16,14 @@ class SettingsDrawer extends StatelessWidget {
         title: const Text('Logout'),
         content: const Text('Are you sure you want to logout?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Logout')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Logout'),
+          ),
         ],
       ),
     );
@@ -31,9 +38,9 @@ class SettingsDrawer extends StatelessWidget {
         print('SignOut error: $err');
       }
       // Navigate to Auth screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const AuthScreen()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const AuthScreen()));
     }
   }
 
@@ -45,9 +52,7 @@ class SettingsDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
+              decoration: BoxDecoration(color: Colors.blue),
               child: Text('Settings'),
             ),
             ListTile(
@@ -141,7 +146,11 @@ class HomeScreen extends StatelessWidget {
                       color: Colors.white.withOpacity(0.18),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.schedule, color: Colors.white, size: 28),
+                    child: const Icon(
+                      Icons.schedule,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ],
               ),
@@ -182,10 +191,9 @@ class HomeScreen extends StatelessWidget {
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withOpacity(0.12),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.12),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -206,7 +214,72 @@ class HomeScreen extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const RoundRobinScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const RoundRobinScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Open Simulator'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Card(
+              elevation: 1,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: Text(
+                            'Shortest Job First (SJF)',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.bolt, color: Colors.orange),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Simulate Shortest Job First scheduling where the shortest execute time is chosen next.',
+                      style: TextStyle(color: Colors.black54),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.orange,
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const SJFScreen(),
+                            ),
                           );
                         },
                         icon: const Icon(Icons.play_arrow),
